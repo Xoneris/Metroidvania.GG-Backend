@@ -4,3 +4,4 @@ frontend
 
 db.sqlite3
 metroidvaniagg.sql
+.env
