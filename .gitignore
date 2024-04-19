@@ -1,6 +1,10 @@
 assets
+assets/
+/assets/
 
 frontend
+frontend/
+/frontend/
 
 db.sqlite3
 metroidvaniagg.sql
