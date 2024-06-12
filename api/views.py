@@ -2,12 +2,14 @@ from django.shortcuts import render
 from django.http import JsonResponse, response
 from django.db.models import Q
 
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
 from .models import *
 from .serializers import *
+
+import requests
 
 from datetime import date, timedelta
 
@@ -73,34 +75,7 @@ class HeroGameView(generics.ListAPIView):
     early_access_qs = Game.objects.all().filter(earlyaccess = True).order_by('?')
 
     queryset = kickstarter_qs.union(last_release_qs, next_upcoming_qs, early_access_qs)
-
-    # queryset = Game.objects.all().filter(kickstarter_status = "Live")
-    # q2 = Game.objects.all().filter(release_date__lte = today)
-    # q3 = Game.objects.all().filter(release_date__gte = tomorrow)
-    # q4 = Game.objects.all().filter(earlyaccess = True).order_by('?')
-
-    # def get_queryset(self):
-    #     today = date.today()
-    #     tomorrow = date.today() + timedelta(1)
-
-
-    #     kickstarter_qs = Game.objects.all().filter(kickstarter_status = "Live")
-    #     last_release_qs = Game.objects.all().filter(release_date__lte = today).order_by('-release_date')
-    #     next_upcoming_qs = Game.objects.all().filter(release_date__gte = tomorrow).order_by('release_date')
-    #     early_access_qs = Game.objects.all().filter(earlyaccess = True).order_by('?')
-
-    #     return kickstarter_qs.union(last_release_qs, next_upcoming_qs, early_access_qs)
-
-    # queryset = Game.objects.filter(
-    #     kickstarter_status = "Live").filter(
-    #     release_date__lte = today).order_by('-release_date').filter(
-    #     release_date__gte = tomorrow).order_by('release_date').filter(
-    #     earlyaccess = True).order_by('?')
-
-
     serializer_class = GameSerializer
-
-    
 
 class RecentlyReleasedGameView(generics.ListAPIView):
 
@@ -113,6 +88,55 @@ class ComingSoonGameView(generics.ListAPIView):
     tomorrow = date.today() + timedelta(1)
     queryset = Game.objects.all().filter(release_date__gte = tomorrow).order_by('release_date')
     serializer_class = GameSerializer
+        
+class SteamReviewsView(generics.RetrieveAPIView):
 
+    def get(self, request, steamappid, *args, **kwargs):
+        try:
+            # URL of the external server's API endpoint
+            external_api_url = 'https://store.steampowered.com/appreviews/'+str(steamappid)+'?json=1&purchase_type=all'
+            
+            # Make a GET request to the external API
+            response = requests.get(external_api_url)
+            
+            # Raise an exception if the request was unsuccessful
+            response.raise_for_status()
+            
+            # Get the data from the response
+            data = response.json()
+            
+            # Return the data as a JSON response
+            return Response(data, status=status.HTTP_200_OK)
+        except requests.RequestException as e:
+            # Handle errors in making the external request
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+class SteamGameView(generics.ListAPIView):
     
+    queryset = Game.objects.exclude(steam = "").order_by('?')
+    serializer_class = GameSerializer
+
+class EpicGameView(generics.ListAPIView):
+    
+    queryset = Game.objects.exclude(epic = "").order_by('?')
+    serializer_class = GameSerializer
+
+class GoGGameView(generics.ListAPIView):
+    
+    queryset = Game.objects.exclude(gog = "").order_by('?')
+    serializer_class = GameSerializer
+
+class PlaystationGameView(generics.ListAPIView):
+    
+    queryset = Game.objects.exclude(playstation = "").order_by('?')
+    serializer_class = GameSerializer
+
+class XboxGameView(generics.ListAPIView):
+    
+    queryset = Game.objects.exclude(xbox = "").order_by('?')
+    serializer_class = GameSerializer
+
+class SwitchGameView(generics.ListAPIView):
+    
+    queryset = Game.objects.exclude(nintendo = "").order_by('?')
+    serializer_class = GameSerializer

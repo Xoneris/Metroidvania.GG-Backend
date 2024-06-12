@@ -15,4 +15,11 @@ urlpatterns = [
     path('games/2024/', views.ReleaseIn2024GameView.as_view()),
     path('games/2025/', views.ReleaseIn2025GameView.as_view()),
     path('games/2026/', views.ReleaseIn2026GameView.as_view()),
+    path('games/steam/', views.SteamGameView.as_view()),
+    path('games/epic/', views.EpicGameView.as_view()),
+    path('games/gog/', views.GoGGameView.as_view()),
+    path('games/playstation/', views.PlaystationGameView.as_view()),
+    path('games/xbox/', views.XboxGameView.as_view()),
+    path('games/switch/', views.SwitchGameView.as_view()),
+    path('games/steamID/<int:steamappid>', views.SteamReviewsView.as_view()),
 ]
